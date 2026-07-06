@@ -1,6 +1,7 @@
 import asyncio
 import io
 import os
+import aiohttp
 
 from flask import Flask, request, send_file, render_template, jsonify
 
@@ -18,14 +19,20 @@ VOICES = {
 }
 
 
-async def _synthesize(text: str, voice: str) -> bytes:
-    """Generate speech audio bytes using edge-tts."""
-    communicate = edge_tts.Communicate(text, voice)
-    audio_data = bytearray()
-    async for chunk in communicate.stream():
-        if chunk["type"] == "audio":
-            audio_data.extend(chunk["data"])
-    return bytes(audio_data)
+
+
+async def _synthesize(text, voice):
+    
+    connector = aiohttp.TCPConnector(ssl=False)
+    
+    async with aiohttp.ClientSession(connector=connector) as session:
+        communicate = edge_tts.Communicate(text, voice)
+        
+        audio_data = bytearray()
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                audio_data.extend(chunk["data"])
+        return bytes(audio_data)
 
 
 @app.route("/")
