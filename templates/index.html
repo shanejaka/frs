@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>မြန်မာစာ အသံဖတ်စနစ် — Myanmar TTS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --jade-deep:   #0A2C2B;
+    --jade:        #0F3D3C;
+    --jade-light:  #1B5652;
+    --gold:        #D4AF37;
+    --gold-soft:   #E8C766;
+    --lacquer:     #A63D33;
+    --ivory:       #FBF6EA;
+    --ivory-dim:   #EFE6D2;
+    --ink:         #1A2422;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0;
+    padding:0;
+    min-height:100vh;
+    font-family:'Inter', sans-serif;
+    color: var(--ivory);
+    background: radial-gradient(1200px 700px at 50% -10%, var(--jade-light) 0%, var(--jade) 45%, var(--jade-deep) 100%);
+    overflow-x:hidden;
+  }
+
+  /* ---- decorative pagoda silhouette skyline, drawn in CSS/SVG, no external image needed ---- */
+  .skyline{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    width:100%;
+    height:38vh;
+    min-height:220px;
+    z-index:0;
+    pointer-events:none;
+    opacity:0.9;
+  }
+  .skyline svg{ width:100%; height:100%; display:block; }
+
+  .stars{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 20% 20%, rgba(232,199,102,0.55) 0, transparent 60%),
+      radial-gradient(1.5px 1.5px at 75% 10%, rgba(232,199,102,0.4) 0, transparent 60%),
+      radial-gradient(1px 1px at 60% 30%, rgba(251,246,234,0.35) 0, transparent 60%),
+      radial-gradient(1px 1px at 35% 15%, rgba(251,246,234,0.3) 0, transparent 60%),
+      radial-gradient(1.5px 1.5px at 90% 25%, rgba(232,199,102,0.35) 0, transparent 60%),
+      radial-gradient(1px 1px at 10% 35%, rgba(251,246,234,0.3) 0, transparent 60%);
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle{ from{ opacity:0.5; } to{ opacity:1; } }
+
+  .wrap{
+    position:relative;
+    z-index:2;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding: 48px 20px 20vh;
+  }
+
+  .eyebrow{
+    letter-spacing: 0.28em;
+    text-transform:uppercase;
+    font-size: 11px;
+    font-weight:600;
+    color: var(--gold-soft);
+    margin-bottom: 10px;
+  }
+
+  h1{
+    font-family:'Padauk', 'Inter', sans-serif;
+    font-weight:700;
+    font-size: clamp(28px, 4.2vw, 44px);
+    margin: 0 0 6px;
+    background: linear-gradient(180deg, var(--ivory) 0%, var(--gold-soft) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align:center;
+  }
+
+  .subtitle{
+    font-size:14px;
+    color: rgba(251,246,234,0.65);
+    margin-bottom: 34px;
+    text-align:center;
+  }
+
+  .card{
+    width:100%;
+    max-width: 560px;
+    background: rgba(251,246,234,0.06);
+    border: 1px solid rgba(212,175,55,0.35);
+    border-radius: 20px;
+    padding: 30px 28px 26px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.55);
+    position: relative;
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0; left: 24px; right: 24px;
+    height:1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  label.field-label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.04em;
+    color: var(--gold-soft);
+    margin: 0 0 8px;
+    text-transform:uppercase;
+  }
+
+  textarea#text{
+    width:100%;
+    min-height: 130px;
+    resize: vertical;
+    font-family:'Padauk','Inter',sans-serif;
+    font-size:17px;
+    line-height:1.6;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(212,175,55,0.3);
+    background: rgba(10,44,43,0.55);
+    color: var(--ivory);
+    outline: none;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  textarea#text::placeholder{ color: rgba(251,246,234,0.4); }
+  textarea#text:focus{
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212,175,55,0.18);
+  }
+
+  .row{
+    display:flex;
+    gap:14px;
+    margin-top:18px;
+    flex-wrap:wrap;
+  }
+
+  .voice-select{ flex: 1 1 200px; }
+
+  select#voice{
+    width:100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(212,175,55,0.3);
+    background: rgba(10,44,43,0.55);
+    color: var(--ivory);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    outline:none;
+    cursor:pointer;
+  }
+  select#voice:focus{ border-color: var(--gold); }
+  select#voice option{ background: var(--jade-deep); color: var(--ivory); }
+
+  button#genBtn{
+    flex: 0 0 auto;
+    align-self:flex-end;
+    padding: 12px 26px;
+    border:none;
+    border-radius: 12px;
+    background: linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color: var(--ink);
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    box-shadow: 0 10px 24px -10px rgba(212,175,55,0.6);
+  }
+  button#genBtn:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+  button#genBtn:active{ transform: translateY(0); }
+  button#genBtn:disabled{
+    opacity:0.6;
+    cursor:not-allowed;
+    transform:none;
+    filter:none;
+  }
+
+  .status{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-height: 20px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--gold-soft);
+  }
+  .status.error{ color: #E9958C; }
+  .status[hidden]{ display:none; }
+
+  .bars{
+    display:inline-flex;
+    align-items:flex-end;
+    gap:3px;
+    height:14px;
+  }
+  .bars span{
+    width:3px;
+    background: var(--gold-soft);
+    border-radius: 2px;
+    animation: bounce 0.9s ease-in-out infinite;
+  }
+  .bars span:nth-child(1){ height:6px;  animation-delay: 0s; }
+  .bars span:nth-child(2){ height:12px; animation-delay: 0.12s; }
+  .bars span:nth-child(3){ height:8px;  animation-delay: 0.24s; }
+  .bars span:nth-child(4){ height:14px; animation-delay: 0.36s; }
+  @keyframes bounce{
+    0%, 100%{ transform: scaleY(0.5); }
+    50%{ transform: scaleY(1); }
+  }
+
+  audio#player{
+    width:100%;
+    margin-top: 18px;
+    display:none;
+    border-radius: 10px;
+  }
+  audio#player::-webkit-media-controls-panel{
+    background: rgba(10,44,43,0.9);
+  }
+
+  footer{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    font-size:11px;
+    color: rgba(251,246,234,0.4);
+    padding-bottom: 22px;
+    letter-spacing:0.03em;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .stars, .bars span{ animation: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="stars"></div>
+
+  <!-- decorative pagoda skyline signature graphic -->
+  <div class="skyline" aria-hidden="true">
+    <svg viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="silhouette" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0A2C2B" stop-opacity="0.0"/>
+          <stop offset="100%" stop-color="#04120F" stop-opacity="0.95"/>
+        </linearGradient>
+        <linearGradient id="goldGlow" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#E8C766"/>
+          <stop offset="100%" stop-color="#D4AF37"/>
+        </linearGradient>
+      </defs>
+
+      <!-- distant hills -->
+      <path d="M0,260 C200,220 350,240 520,210 C700,180 850,230 1020,205 C1200,180 1320,220 1440,200 L1440,400 L0,400 Z"
+            fill="#0F3D3C" opacity="0.55"/>
+
+      <!-- main pagoda cluster silhouette -->
+      <g fill="url(#silhouette)">
+        <path d="M120,330 L150,330 L150,300 L135,270 L150,260 L150,245 L142,235 L142,220 L138,214 L134,220 L134,235 L126,245 L126,260 L141,270 L126,300 L126,330 Z"/>
+        <path d="M260,330 L320,330 L320,295 L300,255 L320,240 L320,215 L305,195 L290,215 L290,240 L310,255 L290,295 L290,330 Z"/>
+        <!-- central Shwedagon-style stupa -->
+        <path d="M620,330
+                 L780,330
+                 L780,280
+                 L740,220
+                 L760,205
+                 L760,175
+                 L730,150
+                 L730,120
+                 L710,95
+                 L710,60
+                 L700,40
+                 L690,60
+                 L690,95
+                 L670,120
+                 L670,150
+                 L640,175
+                 L640,205
+                 L660,220
+                 L620,280
+                 Z"/>
+        <path d="M900,330 L960,330 L960,295 L940,255 L960,240 L960,215 L945,195 L930,215 L930,240 L950,255 L930,295 L930,330 Z"/>
+        <path d="M1100,330 L1130,330 L1130,300 L1115,270 L1130,260 L1130,245 L1122,235 L1122,220 L1118,214 L1114,220 L1114,235 L1106,245 L1106,260 L1121,270 L1106,300 L1106,330 Z"/>
+      </g>
+
+      <!-- glowing spire tip on the main stupa -->
+      <circle cx="700" cy="38" r="4" fill="url(#goldGlow)" opacity="0.9"/>
+      <line x1="700" y1="42" x2="700" y2="60" stroke="url(#goldGlow)" stroke-width="2" opacity="0.7"/>
+    </svg>
+  </div>
+
+  <div class="wrap">
+    <div class="eyebrow">Text&nbsp;to&nbsp;Speech</div>
+    <h1>မြန်မာစာ အသံဖတ်စနစ်</h1>
+    <div class="subtitle">Type Myanmar text, choose a voice, and listen instantly.</div>
+
+    <div class="card">
+      <label class="field-label" for="text">စာသား ရေးရန် / Enter your text</label>
+      <textarea id="text" placeholder="မြန်မာစာဖြင့် ဤနေရာတွင် ရိုက်ထည့်ပါ..."></textarea>
+
+      <div class="row">
+        <div class="voice-select">
+          <label class="field-label" for="voice">အသံရွေးရန် / Voice</label>
+          <select id="voice">
+            {% for value, label in voices.items() %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button id="genBtn" onclick="generateAudio()">Generate Speech</button>
+      </div>
+
+      <div id="status" class="status" hidden></div>
+
+      <audio id="player" controls></audio>
+    </div>
+  </div>
+
+  <footer>Powered by edge-tts &middot; Built for the Myanmar language</footer>
+
+  <script>
+    const btn = document.getElementById('genBtn');
+    const statusEl = document.getElementById('status');
+    const player = document.getElementById('player');
+
+    function setStatus(html, isError) {
+      statusEl.hidden = false;
+      statusEl.className = 'status' + (isError ? ' error' : '');
+      statusEl.innerHTML = html;
+    }
+
+    function clearStatus() {
+      statusEl.hidden = true;
+      statusEl.innerHTML = '';
+    }
+
+    async function generateAudio() {
+      const text = document.getElementById('text').value.trim();
+      const voice = document.getElementById('voice').value;
+
+      if (!text) {
+        setStatus('စာသားထည့်ပေးပါ (Please enter some text)', true);
+        return;
+      }
+
+      btn.disabled = true;
+      player.style.display = 'none';
+      setStatus('<span class="bars"><span></span><span></span><span></span><span></span></span> Generating audio…', false);
+
+      try {
+        const response = await fetch('/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, voice })
+        });
+
+        if (!response.ok) {
+          let message = 'Something went wrong. Please try again.';
+          try {
+            const errJson = await response.json();
+            if (errJson.error) message = errJson.error;
+          } catch (e) {}
+          setStatus(message, true);
+          return;
+        }
+
+        const blob = await response.blob();
+        const audioUrl = URL.createObjectURL(blob);
+
+        player.src = audioUrl;
+        player.style.display = 'block';
+        clearStatus();
+        player.play();
+      } catch (err) {
+        setStatus('Network error — please check your connection and try again.', true);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
