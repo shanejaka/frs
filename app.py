@@ -6,6 +6,9 @@ from flask import Flask, request, send_file, render_template, jsonify
 
 import edge_tts
 
+import nest_asyncio
+nest_asyncio.apply()
+
 app = Flask(__name__)
 
 # Voices available in the UI. Add more edge-tts Myanmar/English voices here if you want.
