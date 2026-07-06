@@ -46,9 +46,13 @@ def generate():
         return jsonify({"error": "မမှန်ကန်သော အသံ (Invalid voice selected)"}), 400
 
     try:
+       
         audio_bytes = asyncio.run(_synthesize(text, voice))
-    except Exception as exc:  # keep the API resilient on Render's free tier
-        return jsonify({"error": f"အသံထုတ်ရာတွင် အမှားရှိသည်: {exc}"}), 500
+    except Exception as exc:
+       
+        import traceback
+        traceback.print_exc() 
+        return jsonify({"error": f"Error: {str(exc)}"}), 500
 
     if not audio_bytes:
         return jsonify({"error": "အသံဖိုင် မထုတ်နိုင်ပါ (No audio generated)"}), 500
