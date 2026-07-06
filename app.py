@@ -48,7 +48,8 @@ def generate():
     try:
        loop = asyncio.new_event_loop() 
        asyncio.set_event_loop(loop) 
-       audio_bytes = loop.run_until_complete(_synthesize(text, voice)) 
+       task=loop.create_task(_synthesize(text, voice))
+       audio_bytes = loop.run_until_complete(task) 
        loop.close()
     except Exception as exc:
        
