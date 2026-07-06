@@ -3,4 +3,3 @@ edge-tts==6.1.19
 gunicorn==22.0.0
 nest_asyncio
 aiohttp
-uvicorn
